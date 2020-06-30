@@ -1,0 +1,16 @@
+{"participants":["Kari", "Jenna", "Basit", "Aasha", "Jonathan", "Kai", "Max", "Justin", "Brandon", "Paige", "Danny", "Nour", "Amber", "Remy", "Kylie", "Jasmine"],
+
+"lights":[
+{"matches":[["Nour","Amber"],["Kari","Kylie"],["Max","Justin"],["Basit","Jonathan"],["Aasha","Paige"],["Brandon","Remy"],["Jasmine","Jenna"],["Kai","Danny"]],
+"lights":2},
+{"matches": [["Kai", "Jenna"],["Basit","Jonathan"],["Justin","Jasmine"],["Amber","Nour"],["Kylie", "Kari"],["Brandon", "Aasha"],["Remy","Danny"],["Max","Paige"]],
+"lights":2}
+],
+
+"truth_room":[
+{"pair":["Nour", "Justin"],
+"verdict":false},
+{"pair":["Brandon", "Remy"],
+"verdict":false}
+]
+}

@@ -15,7 +15,7 @@ class AytoMIPSolver:
                                                                             None for a complete graph"""
 
         ### DATA
-        self.particpants = participants
+        self.participants = participants
         
         # Have we been supplied a list of potential matches already?
         if(potential_matches == None):
@@ -73,7 +73,6 @@ class SolutionRecorder(cp_model.CpSolverSolutionCallback):
         self.__solution_count += 1
         matches_in_sol = []
         for m_key in self.__MVars.keys():
-            logging.getLogger(__name__).debug(m_key)
             if int(self.Value(self.__MVars[m_key])) == 1:
                 matches_in_sol.append((self.__participants[m_key[0]],self.__participants[m_key[1]],))
                 self.__in_sol_count[self.__participants[m_key[0]],self.__participants[m_key[1]]] += 1
@@ -81,7 +80,7 @@ class SolutionRecorder(cp_model.CpSolverSolutionCallback):
         return
 
     def reset(self):
-        self.__solution_count = 9
+        self.__solution_count = 0
         self.__in_sol_count = {(self.__participants[x],self.__participants[y],):0 for x in range(0, len(self.__participants)) for y in range(x+1, len(self.__participants))}
         self.__solutions = []
     
@@ -89,3 +88,41 @@ class SolutionRecorder(cp_model.CpSolverSolutionCallback):
         return self.__solution_count, self.__in_sol_count, self.__solutions
     
 
+def file_reader(file_path):
+    """ Creates and returns an AytoMIPSolver object based on a problem specification file """
+    # Read the JSON
+    with open(file_path) as f:
+        spec = json.load(f)
+    
+    # Setting up the object
+    participants = spec["participants"]
+    pd = {participants[i]: i for i in range(0, len(participants))} # Participant dictionary
+    solver = AytoMIPSolver(participants)
+
+    ### Adding constraints
+    # Truth rooms:
+    for e in spec["truth_room"]:
+        try:
+            solver.truth_room([pd[i] for i in e["pair"]], int(e["verdict"]))
+        except KeyError:
+            logging.getLogger(__name__).exception("No participant called: {} and/or {}".format(*e["pair"]))
+    
+    # Light ceremonies:
+    for e in spec["lights"]:
+        matches = [[pd[p] for p in m] for m in e["matches"]]
+        solver.lights(matches, e["lights"])
+    
+    return solver
+
+#
+solver = file_reader("C:/Users/brice/OneDrive/Documents/github/Are-you-the-one-solver/problems/season8E3.json")
+
+solns, match_counts = solver.solve()[0:2]
+broken_keys = []
+for key in match_counts.keys():
+    match_counts[key] = match_counts[key]/solns
+    if match_counts[key] == 0:
+        broken_keys.append(key)
+for key in broken_keys:
+    del match_counts[key]
+print(match_counts)
